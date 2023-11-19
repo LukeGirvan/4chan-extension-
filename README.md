@@ -4,7 +4,13 @@ This is an extension I am working on that adds various different features to 4ch
 When you check the hover preview box to activate it then hover your mouse over an image or video a preview will be created that is dynamically positioned to follow the users cursor with a set padding so it isnt directly on the cursor but will follow it left or right. Also contains logic to stop the image going off either side of the screen
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/2cba4417-e78b-43f7-864c-4aa525d08ef4)
 ## Grid of images:
-When Image Grid link is pressed it will replace the thread with only images the user can change the amount of images displayed in the settings menu (limit of 10)
+When Image Grid link is pressed it will replace the thread with only images the user can change the amount of images displayed in the settings menu (limit of 10).
+There is also functionality to go fullscreen when an image is clicked by default the user can change this in the settings menu to take them to the post in the thread that contains the image.
+
+
+
+
+
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/24f1f024-071c-40cd-abe1-deafe39b6327)
 ## Fullscreen Gallery:
 This is a fullscreen image gallery that contains slideshow functionality toggled by the user checking the checkbox which also contains keybinds on the left and right arrow to scroll through media.
