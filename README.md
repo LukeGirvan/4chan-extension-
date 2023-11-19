@@ -42,4 +42,6 @@ new:
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/c490d916-3361-48b1-b1cd-1ff7ecbb7135)
 
 
+## Expand All Media In Thread:
+The expand all button will expand all media in the thread with 4chans own expansion logic so you dont have to go through the thread and click every image.  
 
