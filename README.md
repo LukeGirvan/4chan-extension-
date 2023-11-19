@@ -8,6 +8,9 @@ This is an extension I am working on that adds various different features to 4ch
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/f8980662-a580-4df2-9c30-83718103c03d)
 -Custom Keybinding and settings menu
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/2eb03f6c-e988-440f-95b3-2804f0c6ba65)
+
+
+
 -Batch downloading media from the thread:
 Checkboxes are attached to images in the grid which if checked when the download button is hit will be added to the download list
 
