@@ -14,7 +14,8 @@ Custom settings menu to allow users to define the keybinds they want and toggle 
 
 
 
-![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/2eb03f6c-e988-440f-95b3-2804f0c6ba65)
+![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/24b94385-5978-4962-ab43-3fe3672f572b)
+
 
 
 
