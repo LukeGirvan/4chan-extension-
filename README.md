@@ -20,7 +20,7 @@ Checkboxes are attached to images in the grid which if checked when the download
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/bc5903c6-152d-403b-80f1-a687dd19d7b1)
 
 
--Redirect deadlinks to the desuarchive site instead of being useless
+-(experimental may not function fully as expected) Redirect deadlinks to the desuarchive site instead of being useless
 old:
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/80231772-27ab-4540-b30a-63d38295c6ec)
 new:
