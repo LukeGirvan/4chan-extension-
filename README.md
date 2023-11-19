@@ -11,6 +11,9 @@ This is a fullscreen image gallery that contains slideshow functionality toggled
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/f8980662-a580-4df2-9c30-83718103c03d)
 ## Custom Keybinding and settings menu
 Custom settings menu to allow users to define the keybinds they want and toggle various settings off and on. Users can also define the folder name that the images will be downloaded to and create their own custom keybinds to toggle various features easily without having to press the buttons that activate them.
+
+
+
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/2eb03f6c-e988-440f-95b3-2804f0c6ba65)
 
 
