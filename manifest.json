@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "4chan",
+  "version": "1.0",
+  "description": "Your extension description",
+  "permissions": ["activeTab", "downloads", "storage"],
+  "background": {
+      "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "content_scripts": [
+      {
+          "matches": ["<all_urls>"], 
+          "js": ["cdnjs.cloudflare.com_ajax_libs_lazysizes_5.3.2_lazysizes.min.js","code.jquery.com_jquery-3.7.1.slim.min.js", "Content.js","options.js"]
+      }
+  ],
+  "action": {
+      "default_popup": "options.html"
+  }
+}
+
+  
