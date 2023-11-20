@@ -420,6 +420,7 @@ var UA = { hasCORS: !0},
         centeredThreads: !1,
         unmuteWebm: !1,
     },
+   },
 //settings menu for letting users toggle various features / set keybinds	
     settingsmenu =
 	`\n\t<!DOCTYPE html>\n\t
@@ -465,6 +466,7 @@ const settingsContainer = document.createElement("div");
     (settingsContainer.style.position = "fixed"),
     (settingsContainer.style.top = "50%"),
     (settingsContainer.style.left = "50%"),
+	(settingsContainer.style.overflow = "auto"),
     (settingsContainer.style.width = "85vh"),
     (settingsContainer.style.height = "100vh"),
     (settingsContainer.style.backgroundColor = "#d6daf0"),
@@ -610,16 +612,16 @@ class ThreadManipulation {
         }
 }
 
-//function to grab thread html so we can alter it later
-	grabThreadHtml() {
-		// get the html and store them in the map
-		const threadElements = document.querySelectorAll('.thread');
-		threadElements.forEach((threadElement) => {
-		  if (!this.originalThreadContent.has(threadElement)) {
-			this.originalThreadContent.set(threadElement, threadElement.innerHTML);
-		  }
-		});
-	  }
+// //function to grab thread html so we can alter it later
+// 	grabThreadHtml() {
+// 		// get the html and store them in the map
+// 		const threadElements = document.querySelectorAll('.thread');
+// 		threadElements.forEach((threadElement) => {
+// 		  if (!this.originalThreadContent.has(threadElement)) {
+// 			this.originalThreadContent.set(threadElement, threadElement.innerHTML);
+// 		  }
+// 		});
+// 	  }
 	// setting up listeners for keybinds
 	  threadkeybind() {
 		var expandKeybindInput = document.getElementById('expandkeybind');
@@ -670,14 +672,14 @@ class ThreadManipulation {
 	//get all the media links with their thumbnails class filethumb
 	const imageLinks = document.querySelectorAll('.fileThumb');
 	  for (let i = 0; i < imageLinks.length; i++) {
-		const src = x[i].src
+		const src = imageLinks[i].querySelector('img').src
 		if(src==='https://s.4cdn.org/image/spoiler-vg1.png'){
 			ImageExpansion.expand(x[i])
 		}
 		const filetext = imageLinks[i].parentNode.querySelector('.fileText')
 		const filenamebytext = filetext.querySelector('a').textContent.replace(/\s/g,'').split('.')[0];
 		const filenamebytitle = filetext.querySelector('a').title.replace(/\s/g,'').split('.')[0]
-		if(file2){
+		if(filenamebytitle){
 			filename = filenamebytitle
 		}else{
 			filename = filenamebytext
@@ -796,6 +798,7 @@ class ThreadManipulation {
 		const imagesperrow =document.getElementById('imagesperrow').value 
 		const gotothreadchecked = document.getElementById('gotothread').checked
 		//grab the thread and loop through to clear the thread html
+		console.log(this.originalThreadContent)
 		document.querySelectorAll('.thread').forEach(threadElement => {
 			const threadContent = threadElement.innerHTML;
 			if (!this.originalThreadContent.has(threadElement)) {
@@ -959,7 +962,6 @@ class ThreadManipulation {
 	  
 		// Reapply event listeners and update the thread HTML
 		setupfileThumbClick();
-		this.grabThreadHtml();
 		setupImageAndVideoPreview();
 	  }
 	  
@@ -1015,10 +1017,10 @@ class ThreadManipulation {
 	  });
 	}
   }
-  initialize it and call the needed functions
+//   initialize it and call the needed functions
   const threadManipulation = new ThreadManipulation();
   threadManipulation.getImageLinks()
-  threadManipulation.grabThreadHtml()
+//   threadManipulation.grabThreadHtml()
   threadManipulation.redirectDeadLinks()
   threadManipulation.getridofdeleted()
   threadManipulation.threadkeybind()
@@ -1059,8 +1061,6 @@ class ThreadManipulation {
   	
 	const label = document.createTextNode('Slideshow')
 		
-	//user interval for setting slideshow timing
-	const user= document.getElementById('userinterval').value
   	// listener for state changing
 	  checkbox.addEventListener('change', () => {
 		if (checkbox.checked) {
@@ -1299,14 +1299,26 @@ class ImagePreview {
       }
       
       
-      
+
+
+      /**
+	   * 
+	   * @param {string} link 
+	   * @returns {Boolean}
+	   */
       
   //function for finding video links via regex
 	isVideoLink(link) {
 	  const isVideo = link.match(/\.(jpg|png|jpeg|webp|gif)$/i) ? false : true;
 	  return isVideo;
 	}
-  
+
+
+  /**
+   * 
+   * @param {String} link 
+   * @param {Boolean} isVideo 
+   */
 	// function for creating preview when hovered and checkbox checked
    createNewPreview(link, isVideo) {
 	const windowDimensions = this.getWindowDimensions();
@@ -1341,6 +1353,11 @@ class ImagePreview {
 	document.body.appendChild(this.currentPreview);
      } 
 	 
+/**
+ * 
+ * @param {HTMLMediaElement} imageElement 
+ */
+
   //function for grabbing link and passing it to create preview
 	  handleMouseEnter(imageElement) {
 		const link = imageElement.parentNode.getAttribute('href');
@@ -1448,8 +1465,6 @@ class ImagePreview {
 						videoElement.controls = true;
 						videoElement.loop = false;
 						videoElement.muted = false;
-						videoElement.style.maxWidth = '40%';
-						videoElement.style.maxHeight = '50%'; // Set maximum dimensions
 						container.appendChild(videoElement);
 					} else {
 						container.innerHTML = ''; // Remove previous content
@@ -1457,8 +1472,7 @@ class ImagePreview {
 						imgElement.src = link;
 						imgElement.alt = 'Image';
 						imgElement.className = 'expanded-thumb';
-						imgElement.style.maxWidth = '40%';
-						imgElement.style.maxHeight = '50%'; // Set maximum dimensions
+					
 						container.appendChild(imgElement);
 					}
 				}
@@ -1651,7 +1665,7 @@ console.log(threadManipulation.filenames)
 			folder_name: foldername,
 			fileNames: filenames
 		};
-		//send the message to the background script to start the download with the folder name, media name, and the array of images to download
+		//create the message for the background script to start the download with the folder name, media name, and the array of images to download
 		const message = {
 			type: 'downloadImages',
 			imagesToDownload: imagesToDownloadUrls,
