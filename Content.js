@@ -1,6 +1,6 @@
 
 var element = document.querySelector(".navLinks.desktop");
-
+//4chan expansion logic 
 var OgvCtrl = {
         ogv: null,
         cnt: null,
@@ -420,7 +420,7 @@ var UA = { hasCORS: !0},
         centeredThreads: !1,
         unmuteWebm: !1,
     },
-	
+//settings menu for letting users toggle various features / set keybinds	
     settingsmenu =
 	`\n\t<!DOCTYPE html>\n\t
 	<html lang="en">
@@ -445,7 +445,7 @@ var UA = { hasCORS: !0},
 			\n\t
 			<form id="settings-form">
 				\n\t\t<label>\n\t\t <input type="checkbox" id="hover-image" /> Activate Image Hover Preview\n\t\t</label>\n \n\t\t<label>\n\t\t <input type="checkbox" id="gotothread" /> Click Image Go To Thread Post\n\t\t</label>\n \n\t\t
-				<label>\n\t\t Show SLideshow images for <input style="width: 100px;" type="number" min="1" max="9999" step="1" id="userinterval" /> second(s)\n\t\t</label>\n \n\t\t
+				<label>\n\t\t Show Slideshow images for <input style="width: 100px;" type="number" min="1" max="9999" step="1" id="userinterval" /> second(s)\n\t\t</label>\n \n\t\t
 				<label>\n\t\t Show <input style="width: 100px;" type="number" min="1" max="10" step="1" id="imagesperrow" /> Images Per Row (image grid)\n\t\t</label>\n\n\t\t
 				<label>\n\t\t Download Folder Name <input style="width: 150px;" type="text" id="foldername"  /> \n\t\t</label>\n\t\t
 				<label>\n\t\t Replace Thread (default = ctrl + shift + l) <input style="width: 150px;" type="text" id="replacekeybind" maxlength="1" /> \n\t\t</label>\n\n\t\t
@@ -513,10 +513,7 @@ const modalBackdrop = document.createElement("div");
 	});
 	
 
-
-
-console.log(document.getElementById('userinterval').value)
-
+//this function is purely for responsive toggling of the hover feature
 function applySettings(settings) {
 	// Example: Update the behavior based on the hover image setting
 	if (settings.hoverImage) {
@@ -549,9 +546,10 @@ document.getElementById('settings-form').addEventListener('submit', function (ev
   event.preventDefault();
   const modalContent = document.getElementById('modal-backdrop')
   const settings = document.getElementById('settings-container')
+	// hide the setting menu after submitting
 	modalContent.style.display = 'none '
 	settings.style.display = 'none '
-  // Get the values of the checkboxes
+  // Get the values of the settings to store them in local
   const hoverImage = document.getElementById('hover-image').checked;
   const gotothread = document.getElementById('gotothread').checked;
   const userinterval = document.getElementById('userinterval').value
@@ -580,23 +578,27 @@ document.getElementById('settings-form').addEventListener('submit', function (ev
   applySettings(userSettings);
 });
 
-
+// class for all the functions to do with changing the thread
 class ThreadManipulation {
 	constructor() {
 	  this.originalThreadContent = new Map();
-	  this.originalThreadContent2 = new Map();
 	  this.mediaurls = [];
 	  this.posthrefs = [];
 	  this.filenames = {};
 	  this.srcs = [];
 	  this.expanded = false
 	}
-	
+//function to check if there are deleted posts and if there is remove them as it interferes with- 
+//other logic such as expand all because when a loop encounters a null image it throws an error
     getridofdeleted(){
+	    //check for deleted which have the class filedeletedres
         const deletedFileElements = document.querySelectorAll(".fileDeletedRes");
     
-        // Loop through the selected elements and remove the "span.fileThumb" parent element
+        //if there arent any return early to not waste time looping for no reason
         if (!deletedFileElements) return;
+	// if there are deleted elements
+	//Loop through the selected elements and remove the "span.fileThumb" parent element
+	// this will stop the interference with other loops that grab the filethumbs
         for (var i = 0; i < deletedFileElements.length; i++) {
             const fileElement = deletedFileElements[i];
             const parentfileThumb = fileElement.parentNode; // Get the parent of the .fileDeletedRes element
@@ -608,16 +610,17 @@ class ThreadManipulation {
         }
 }
 
-
+//function to grab thread html so we can alter it later
 	grabThreadHtml() {
+		// get the html and store them in the map
 		const threadElements = document.querySelectorAll('.thread');
 		threadElements.forEach((threadElement) => {
-		  if (!this.originalThreadContent2.has(threadElement)) {
-			this.originalThreadContent2.set(threadElement, threadElement.innerHTML);
+		  if (!this.originalThreadContent.has(threadElement)) {
+			this.originalThreadContent.set(threadElement, threadElement.innerHTML);
 		  }
 		});
 	  }
-	
+	// setting up listeners for keybinds
 	  threadkeybind() {
 		var expandKeybindInput = document.getElementById('expandkeybind');
 		var fullscreenkeybind = document.getElementById('fullscreenkeybind')
@@ -638,7 +641,7 @@ class ThreadManipulation {
 			document.addEventListener('keydown', function keyListener(e) {
 				if (e.key.toLowerCase() === replacekeybind.value.toLowerCase() && e.ctrlKey && e.shiftKey)
 				{
-					// Perform the desired action (e.g., call expandImages())
+					// Perform the desired action
 					threadManipulation.replaceThreadContent();
 				}
 			});
@@ -647,7 +650,7 @@ class ThreadManipulation {
 			document.addEventListener('keydown', function keyListener(e) {
 				if (e.key.toLowerCase() === fullscreenkeybind.value.toLowerCase() && e.ctrlKey && e.shiftKey)
 				{
-					// Perform the desired action (e.g., call expandImages())
+					// Perform the desired action
 					mediaContainer.requestFullscreen()
 					fullscreenFunctionality.updateMedia();
 					
@@ -657,38 +660,39 @@ class ThreadManipulation {
 		document.addEventListener('keydown', function keyListener(e) {
 			if ( e.key.toLowerCase() === topkeybind.value && e.ctrlKey &&  e.shiftKey)  {
 				// Perform the action for the '#' key (e.g., scroll to the top)
-				// You need to implement the specific action you want for this key
 				window.scrollTo(0, 0);  // Example: Scroll to the top
 			}
 		});
 	}
-
+	//function to get all media links video/img
 	getImageLinks() {
-		let filename
-	  const imageLinks = document.querySelectorAll('.fileThumb');
-	//   const spoilerImageLinks = document.querySelectorAll('.fileThumb.imgspoiler');
-		const x = document.querySelectorAll('.fileThumb img');
+	let filename
+	//get all the media links with their thumbnails class filethumb
+	const imageLinks = document.querySelectorAll('.fileThumb');
 	  for (let i = 0; i < imageLinks.length; i++) {
 		const src = x[i].src
 		if(src==='https://s.4cdn.org/image/spoiler-vg1.png'){
 			ImageExpansion.expand(x[i])
 		}
 		const filetext = imageLinks[i].parentNode.querySelector('.fileText')
-		const file1 = filetext.querySelector('a').textContent.replace(/\s/g,'').split('.')[0];
-		const file2 = filetext.querySelector('a').title.replace(/\s/g,'').split('.')[0]
+		const filenamebytext = filetext.querySelector('a').textContent.replace(/\s/g,'').split('.')[0];
+		const filenamebytitle = filetext.querySelector('a').title.replace(/\s/g,'').split('.')[0]
 		if(file2){
-			filename = file2
+			filename = filenamebytitle
 		}else{
-			filename = file1
+			filename = filenamebytext
 		}
 		console.log(filename)
+		// the higher quality image link is in the href
 		const link = imageLinks[i].href;
+		//logic for getting the link to go to the post for later logic
+		//get the post container that contains the image and go through the nodes to get the href
 		const postcontainer = imageLinks[i].closest('.postContainer')
 		const dateTime = postcontainer.querySelector('.dateTime.postNum');
 		const postLink = dateTime.querySelector('a');
-        const postHref = postLink.getAttribute('href');
+        	const postHref = postLink.getAttribute('href');
         
-	
+		// add them to the corresponding arrays
 		if (link !== undefined) {
 		  this.srcs.push(src)
 		  this.filenames[link]=filename
@@ -699,49 +703,73 @@ class ThreadManipulation {
   
 	}
 
-
+	//function for expanding all images
 	 expandImages() {
-		const expandlink =document.querySelector('.expandlink')
+		 //getting my link to change the text depending on the image state
+		var expandlink = document.querySelector('.expandlink')
 		var thumbs = document.getElementsByClassName("fileThumb");
+	    //if not expanded expand and change the expand link text to collapse
             if(!this.expanded) {
                 expandlink.textContent = ' Collapse Images | '
+		    // set expanded to true for next interaction
                 this.expanded = true;
+		    //loop through and use 4chan expansion logic for each image/video
                 for(var i = 0; i < thumbs.length; i++) {
+		// this is img because videos are img thumbnails before expansion
+		// and gifs are defined as img too
                     var img = thumbs[i].getElementsByTagName('img')[0];
-                    if (img.alt != "File deleted.") {
-                                        ImageExpansion.expand(img);
-                                }
-                }
-                
+        	    //expand the media
+		    ImageExpansion.expand(img);
+		
+	}
+                //if expanded is already true handle the collapsing logic
             }else{
+		    //set the text back to default state
                 expandlink.textContent = ' Expand Images | '
                 this.expanded = false;
-                var collapseWebm = document.getElementsByClassName("collapseWebm");
-                var expandedWebm = document.getElementsByClassName("expandedWebm");
-                while(collapseWebm.length > 0){
-                    collapseWebm[0].remove();
-                }
-                while(expandedWebm.length > 0){
-                    expandedWebm[0].remove();
-                }
-                for(var i = 0; i < thumbs.length; i++) {
-                    if(thumbs[i].style.display=="none"){
-                        thumbs[i].style.display = null;
-                    }
-                    var img = thumbs[i].getElementsByTagName('img')[1];
-                    if (img !== undefined) {
-                            ImageExpansion.contract(img);
-                    }
-                    
-                }
-                setupImageAndVideoPreview()
+		// Select all elements with the class "collapseWebm"
+		var collapseWebm = document.querySelectorAll(".collapseWebm");
+		
+		// Select all elements with the class "expandedWebm"
+		var expandedWebm = document.querySelectorAll(".expandedWebm");
+		
+		// Remove elements with the class "collapseWebm"
+		collapseWebm.forEach(function (element) {
+		    element.parentNode.removeChild(element);
+		});
+		
+		// Remove elements with the class "expandedWebm"
+		expandedWebm.forEach(function (element) {
+		    element.parentNode.removeChild(element);
+		});
+		
+		// Loop through thumbs array
+		for (var i = 0; i < thumbs.length; i++) {
+		    // If the display property is "none", set it to null to make it visible
+		    if (thumbs[i].style.display == "none") {
+		        thumbs[i].style.display = null;
+		    }
+		
+		    // Get the second img element within the current thumbs[i]
+		    var img = thumbs[i].getElementsByTagName('img')[1];
+		    
+		    // Check if img is defined
+		    if (img !== undefined) {
+		        // Contract the image using ImageExpansion.contract method
+		        ImageExpansion.contract(img);
+		    }
+		}
+		
+		// Call the setupImageAndVideoPreview function to reattach the hover listeners
+		setupImageAndVideoPreview();
+
 	}
 	  }
 	  
 	 
 	
 	redirectDeadLinks() {
-		//get the text of the url that changes which is /*Board*/*Thread*/*Thread Number*/
+	//get the text of the url that changes which is /*Board*/*Thread*/*Thread Number*/
 	  const pathname = window.location.pathname;
 	  //split it on the slashes
 	  const pathParts = pathname.split('/');
@@ -764,35 +792,35 @@ class ThreadManipulation {
 
 	//function for replacing thread html with images
 	replaceThreadContent() {
+		// get the user defined images per row value for grid styling
 		const imagesperrow =document.getElementById('imagesperrow').value 
-		const checkb = document.getElementById('gotothread')
-		console.log(checkb.checked)
-	//grab the thread and loop through to clear the thread html
-	document.querySelectorAll('.thread').forEach(threadElement => {
-		const threadContent = threadElement.innerHTML;
-		if (!this.originalThreadContent.has(threadElement)) {
-		  this.originalThreadContent.set(threadElement, threadContent);
-		  const galleryContainer = document.createElement('div');
-			galleryContainer.classList.add('image-gallery');
-			galleryContainer.style.display = 'flex';
-			galleryContainer.style.flexWrap = 'wrap';
-
-		
-		  const selectAllButton = document.createElement('button');
-		  selectAllButton.textContent = 'Select All';
-		  selectAllButton.addEventListener('click', (e) => {
-			e.preventDefault();
-			this.selectAllCheckboxes();
-		  });
-		  
-		  const downloadSelectedButton = document.createElement('button');
-		  downloadSelectedButton.textContent = 'Download Selected Images';
-		  downloadSelectedButton.addEventListener('click', (event) => {
-			event.preventDefault();
-			downloader();
-		  });
-		
-		 threadElement.innerHTML = ''
+		const gotothreadchecked = document.getElementById('gotothread').checked
+		//grab the thread and loop through to clear the thread html
+		document.querySelectorAll('.thread').forEach(threadElement => {
+			const threadContent = threadElement.innerHTML;
+			if (!this.originalThreadContent.has(threadElement)) {
+			  this.originalThreadContent.set(threadElement, threadContent);
+			  const galleryContainer = document.createElement('div');
+				galleryContainer.classList.add('image-gallery');
+				galleryContainer.style.display = 'flex';
+				galleryContainer.style.flexWrap = 'wrap';
+	
+			
+			  const selectAllButton = document.createElement('button');
+			  selectAllButton.textContent = 'Select All';
+			  selectAllButton.addEventListener('click', (e) => {
+				e.preventDefault();
+				this.selectAllCheckboxes();
+			  });
+			  
+			  const downloadSelectedButton = document.createElement('button');
+			  downloadSelectedButton.textContent = 'Download Selected Images';
+			  downloadSelectedButton.addEventListener('click', (event) => {
+				event.preventDefault();
+				downloader();
+			  });
+			
+			 threadElement.innerHTML = ''
   
 		 for (let i = 0; i < this.mediaurls.length; i++) {
 			const link = this.mediaurls[i];
@@ -809,7 +837,9 @@ class ThreadManipulation {
 			item.style.boxSizing = 'border-box';
 		  
 			if (isVideo) {
+			//video styling logic
 			  const video = document.createElement('video');
+			// i added lazy loading for videos as it makes the grid more responsive
 			  video.setAttribute('data-src', link)
 			  video.src = this.srcs[i]
 			  video.autoplay = false;
@@ -819,34 +849,34 @@ class ThreadManipulation {
 			  video.classList.add('lazyload');
 			  video.style.width = '100%';
 			  video.style.height = 'auto';
-		  
-			  if (checkb.checked) {
+		  	// if gotothread is checked make it go to thread on click instead of default behaviour
+			  if (gotothreadchecked) {
 				const videoLink = document.createElement('a');
 				videoLink.href = this.posthrefs[i];
 				videoLink.appendChild(video);
 		  
 				videoLink.addEventListener('click', (event) => {
 				  event.preventDefault();
+				//restore thread to show post
 				  this.restoreThreadContent()
-				  window.location.href = this.posthrefs[i]; // Navigate to the specified URL
+				// Navigate to the specified URL
+				  window.location.href = this.posthrefs[i]; 
 				});
-		  
+		  		//append to item to append to gallery
 				item.appendChild(videoLink);
 			  } else {
 				item.appendChild(video);
 			  }
-		  
+		  	//append checkbox with value for downloading later
 			  item.appendChild(checkbox);
 			} else {
 			  const img = document.createElement('img');
-			//   img.setAttribute('data-src', link)
 			  img.src = link
 			  img.alt = 'Image';
-			//   img.classList.add('lazyload');
 			  img.style.width = '100%';
 			  img.style.height = 'auto';
 		  
-			  if (checkb.checked) {
+			  if (gotothreadchecked) {
 				const imgLink = document.createElement('a');
 				imgLink.href = this.posthrefs[i];
 				imgLink.appendChild(img);
@@ -854,11 +884,12 @@ class ThreadManipulation {
 				imgLink.addEventListener('click', (event) => {
 				  event.preventDefault();
 				  this.restoreThreadContent()
-				  window.location.href = this.posthrefs[i]; // Navigate to the specified URL
+				  window.location.href = this.posthrefs[i]; 
 				});
 				
 				item.appendChild(imgLink);
 			  } else {
+	//logic to go fullscreen on click this is not needed on videos as they have a fullscreen button on their controls
 				img.addEventListener('click', () => {
 					mediaContainer.requestFullscreen();
 					fullscreenFunctionality.index = this.mediaurls.indexOf(img.src);
@@ -880,7 +911,7 @@ class ThreadManipulation {
 		}
 	  });
 
-	
+	//set the link visibility states
 	  document.querySelector('.expandlink').style.display = 'none';
 	  document.querySelector('.replaceLink').style.display = 'none';
 	  document.querySelector('.reverseLink').style.display = 'inline';
@@ -888,7 +919,7 @@ class ThreadManipulation {
   
 	}
   
-
+	//simple function to reverse the gallery order
 	 reverse() {
 		const gallery = document.querySelector('.image-gallery');
 		const fragment = document.createDocumentFragment();
@@ -900,11 +931,12 @@ class ThreadManipulation {
 		gallery.appendChild(fragment);
 	  }
 	  
-  
+  	//function to restore the thread html we grabbed earlier
 	  restoreThreadContent() {
+		  //get the thread nodes and replace them with original
 		document.querySelectorAll('.thread').forEach((threadElement) => {
-		  if (this.originalThreadContent2.has(threadElement)) {
-			const originalContent = this.originalThreadContent2.get(threadElement);
+		  if (this.originalThreadContent.has(threadElement)) {
+			const originalContent = this.originalThreadContent.get(threadElement);
 			
 			// Clear the existing content
 			while (threadElement.firstChild) {
@@ -922,8 +954,7 @@ class ThreadManipulation {
 		document.querySelector('.reverseLink').style.display = 'none';
 		document.querySelector('.restorelink').style.display = 'none';
 	  
-		// Clear the original content maps
-		this.originalThreadContent2.clear();
+		// Clear the original content map
 		this.originalThreadContent.clear();
 	  
 		// Reapply event listeners and update the thread HTML
@@ -932,7 +963,7 @@ class ThreadManipulation {
 		setupImageAndVideoPreview();
 	  }
 	  
-  
+  	//simple function to check all boxes when button pressed
 	selectAllCheckboxes() {
 	  const checkboxes = document.querySelectorAll('.image-checkbox');
   
@@ -940,7 +971,7 @@ class ThreadManipulation {
 		checkbox.checked = true;
 	  });
 	}
-  
+  	//function for zooming when fullscreen
 	addZoomFunctionality(img) {
 	  let isFullscreen = false;
 	  let zoomLevel = 1;
@@ -963,7 +994,7 @@ class ThreadManipulation {
 	  function updateZoom() {
 		img.style.height = `${zoomLevel * 100}%`;
 	  }
-  
+  	//listener for the zoom in and out keys
 	  document.addEventListener('keydown', (e) => {
 		if (document.fullscreenElement) {
 		  e.preventDefault();
@@ -975,7 +1006,7 @@ class ThreadManipulation {
 		  }
 		}
 	  });
-  
+  	// if we leave fullscreen reset zoom level on image
 	  document.addEventListener('fullscreenchange', () => {
 		isFullscreen = !!document.fullscreenElement;
 		if (!isFullscreen) {
@@ -984,32 +1015,33 @@ class ThreadManipulation {
 	  });
 	}
   }
-  
+  initialize it and call the needed functions
   const threadManipulation = new ThreadManipulation();
   threadManipulation.getImageLinks()
   threadManipulation.grabThreadHtml()
   threadManipulation.redirectDeadLinks()
   threadManipulation.getridofdeleted()
   threadManipulation.threadkeybind()
-  console.log(threadManipulation.srcs)
-  console.log(threadManipulation.mediaurls.length, threadManipulation.posthrefs.length)
 
+//class for fullscreen functionality
   class FullscreenFunctionality {
 	constructor(checkboxState, videoplaying) {
 	  this.checkboxState = checkboxState;
 	  this.index = 0;
 	  this.videoplaying = videoplaying;
 	  this.intervalId  = null;
+	  this.fullscreen = false;
 	}
-  
+  	//create checkbox for activating fullscreen slideshow
 	createCheckbox() {
 	  console.log('createCheckbox called');
 	  const mediaContainer = document.querySelector('.media-container');
+	// if mediacontainer doesnt exist return early
 	  if (!mediaContainer) {
 		console.log('Media container not found.');
 		return;
 	  }
-  
+  	//styling for bottom right and being in the foreground
 	  const checkboxContainer = document.createElement('div');
 	  checkboxContainer.id = 'custom-checkbox-container';
 	  checkboxContainer.style.position = 'fixed';
@@ -1017,29 +1049,25 @@ class ThreadManipulation {
 	  checkboxContainer.style.bottom = '10px';
 	  checkboxContainer.style.zIndex = '9999';
 	  checkboxContainer.style.display = 'none';
-  
+	  checkboxContainer.style.color = 'white';
+  	//make an id so we can grab later
 	  const checkbox = document.createElement('input');
 	  checkbox.type = 'checkbox';
 	  checkbox.id = 'FullscreenCheckbox';
+	// set the state
 	  checkbox.checked = this.checkboxState;
-  
-	  const label = document.createElement('label');
-	  label.id = 'FullscreenLabel';
-	  label.textContent = 'Slideshow';
-	  label.style.color = 'white';
-	  label.style.right = '20px';
-	  label.style.bottom = '20px';
-	  const user= document.getElementById('userinterval').value
-	  console.log(user)
-  
+  	
+	const label = document.createTextNode('Slideshow')
+		
+	//user interval for setting slideshow timing
+	const user= document.getElementById('userinterval').value
+  	// listener for state changing
 	  checkbox.addEventListener('change', () => {
 		if (checkbox.checked) {
+		//change state to true
 		  this.checkboxState = true;
-		  console.log('Checkbox is checked');
-		  this.startInter()
-		  if (this.videoplaying) {
-			this.endinter();
-		  }
+					
+		  this.videoplaying ? this.endinter() : this.startinter()
 		} else {
 		  this.checkboxState = false;
 		  this.endinter();
@@ -1050,49 +1078,54 @@ class ThreadManipulation {
 	  checkboxContainer.appendChild(label);
 	  mediaContainer.appendChild(checkboxContainer);
 	}
-  
+  //function for showing checkbox when fullscreen
 	showCheckbox() {
+	//call create checkbox function 
 	  this.createCheckbox();
+		
 	  const checkboxContainer = document.getElementById('custom-checkbox-container');
+		//display the checkbox
 	  if (checkboxContainer) {
 		checkboxContainer.style.display = 'block';
 	  }
 	}
-  
+  //function to hide the checkbox when not fullscreen
 	hideCheckbox() {
 	  const checkboxContainer = document.getElementById('custom-checkbox-container');
 	  if (checkboxContainer) {
 		checkboxContainer.style.display = 'none';
 	  }
 	}
-  
+  //function to remove keybinds for fullscreen as there was a bug 
+// if you entered and left fullscreen multiple times it would multiply the amount of times the keybinds by that amount
 	removeFullscreenKeyBinds() {
 		document.removeEventListener('keydown', this.handleKeydown);
 	  }
 
-
+//keybinds to go through images when fullscreen left and right arrows
 	fullscreenKeyBinds() {
+		//if right arrow go next update index and call update media to display next image
 		this.handleKeydown = (event) => {
-		  if (event.keyCode === 39) {
-			if (document.activeElement === document.body) {
-			  console.log('fullscreenkeybind did this');
+		  if (event.keyCode === 39 && this.fullscreen) {
 			  this.index += 1;
-	  
+	  	// if index exceeds the last image index loop back to first
 			  if (this.index > threadManipulation.mediaurls.length - 1) {
 				this.index = 0;
 			  }
+			//function that displays new image
 			  this.updateMedia();
-			}
-		  } else if (event.keyCode === 37) {
-			if (document.activeElement === document.body) {
-			  console.log('fullscreenkeybind did this');
+		//if left arrow go next update index and call update media to display previous image
+		  } 
+			if (event.keyCode === 37 && this.fullscreen) {
+			
 			  this.index -= 1;
-	  
+	  	  	// if index goes below 0  index loop to last image
+
 			  if (this.index < 0) {
 				this.index = threadManipulation.mediaurls.length - 1;
 			  }
 			  this.updateMedia();
-			}
+			
 		  }
 		};
 		document.addEventListener('keydown', this.handleKeydown);
@@ -1149,6 +1182,7 @@ class ThreadManipulation {
 			// Image styling
 			const imageElement = document.createElement('img');
 			imageElement.src = mediaUrl;
+			//set videoplaying state to false
 			this.videoplaying = false
 			imageElement.style.width = 'auto';
 			imageElement.style.height = '100vh';
@@ -1171,13 +1205,14 @@ class ThreadManipulation {
 	
 
 
-	  
+	  //function for starting intervals
 	 startInter() {
 		const checkbox = document.getElementById('FullscreenCheckbox');
 		const interval = parseInt(checkbox.dataset.interval);
 		const user = document.getElementById('userinterval').value
 		if (checkbox.checked && !interval) {
 		  this.intervalId = setInterval(() => {
+			if (interval>threadManipulation.mediaurls.length){this.endinter()}
 			this.index += 1;
 			this.updateMedia();
 			console.log('startinter did this:', this.index);
@@ -1185,7 +1220,7 @@ class ThreadManipulation {
 		  checkbox.dataset.interval = this.intervalId;
 		}
 	  }
-	  
+	  //function for ending intervals
 	   endinter() {
 		const checkbox = document.getElementById('FullscreenCheckbox');
 		const interval = parseInt(checkbox.dataset.interval);
@@ -1199,7 +1234,7 @@ class ThreadManipulation {
 	  
   }
 
-//initialize it will the variables
+//initialize it with the variables
   const fullscreenFunctionality = new FullscreenFunctionality(false, false)
 
 
@@ -1576,12 +1611,14 @@ document.addEventListener('fullscreenchange', function (e) {
 	const mediaContainer = document.querySelector('.media-container');
     //if fullscreen display the mediacontainer and setup the checkbox for slideshow plus keybinds for going through images
 	if (document.fullscreenElement) {
+		fullscreenFunctionality.fullscreen = true
 		document.head.appendChild(styleElement);
 	    mediaContainer.style.display = 'block';
 	    fullscreenFunctionality.fullscreenKeyBinds();
 	    fullscreenFunctionality.showCheckbox();
 	    console.log('Entered fullscreen mode');
 	} else {
+		fullscreenFunctionality.fullscreen = false
 		fullscreenFunctionality.removeFullscreenKeyBinds();
 		document.head.removeChild(styleElement);
         // if its not fullscreen set checkbox to false so that interval stops and doesnt increase in the background
