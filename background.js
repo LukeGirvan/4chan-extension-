@@ -1,4 +1,3 @@
-let index = 0
 chrome.runtime.onConnect.addListener((port) => {
   console.assert(port.name === 'content-script');
 
@@ -71,18 +70,14 @@ if (!task) {
   suggest();
   return;
 }
-console.log(task)
+  
 const regex = /(?:\.([^.]+))?$/;
 const extension = regex.exec(item.filename)[1];
-console.log('index:', index);
-console.log('task.options.folder_name:', task.options.fileNames[task.numberOfProcessedImages]);
-console.log('task.options.folder_name:', task.options.fileNames)
-console.log(item)
-console.log(task)
+// this will put the correct file name as the task.numberOfProcessedImages acts as the index 
+// and grabs the correct filename for the corresponding loop
 let newFilename = task.options.folder_name+ '/' + task.options.fileNames[task.numberOfProcessedImages]
 newFilename += `.${extension}`;
 
-index+=1
 
 suggest({ filename: normalizeSlashes(newFilename) });
 task.next();
