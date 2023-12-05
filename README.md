@@ -35,7 +35,7 @@ Checkboxes are attached to images in the grid which if checked when the download
 
 
 ## Redirect Dead Links:
-This is an attempt to detect dead links and redirect them to the desuarchive site i still have work to do on this and it will be changed in the future to have better functionality
+This is an attempt to detect dead links and redirect them to the archive.moe I still have work to do on this and it will be changed in the future to have better functionality
 old:
 ![image](https://github.com/LukeGirvan/4chan-extension-/assets/126108451/80231772-27ab-4540-b30a-63d38295c6ec)
 new:
