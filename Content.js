@@ -261,7 +261,7 @@ settingsContainer.id = "settings-container"
     settingsContainer.style.position = "fixed"
     settingsContainer.style.top = "50%"
     settingsContainer.style.left = "50%"
-	  settingsContainer.style.overflow = "scroll"
+    settingsContainer.style.overflow = "scroll"
     settingsContainer.style.width = "85vw"
     settingsContainer.style.height = "100vh"
     settingsContainer.style.backgroundColor = "#d6daf0"
@@ -931,13 +931,13 @@ updateButtonVisibility() {
     this.targetElement = Math.min(15, this.mediaurls.length);
     const thread = document.querySelector(".thread")
     thread.innerHTML = ''
-    // thread.style.display = 'none'
+    
     
 
-        const galleryContainer = this.createImageGalleryContainer();
-        const selectAllButton = this.createButton("Select All", this.selectAllCheckboxes);
-        const downloadSelectedButton = this.createButton("Download Selected", downloader);
-        const elementsToAdd = document.createDocumentFragment(); // Create a document fragment
+	const galleryContainer = this.createImageGalleryContainer();
+	const selectAllButton = this.createButton("Select All", this.selectAllCheckboxes);
+	const downloadSelectedButton = this.createButton("Download Selected", downloader);
+	const elementsToAdd = document.createDocumentFragment(); 
 
         for (let i = this.startindex; i < this.endindex; i++) {
           const item = this.createItem(config.imagesPerRow);
@@ -1003,20 +1003,20 @@ updateButtonVisibility() {
 
   
 
-  observeImages() {
+ observeImages() {
    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
             // Simplify the condition
               const isValidEntry = entry.isIntersecting &&
-                  (entry.target.src === this.mediaurls[this.number] ||
-                      entry.target.dataset.src === this.mediaurls[this.number]);
+                  (entry.target.src === this.mediaurls[this.targetElement] ||
+                      entry.target.dataset.src === this.mediaurls[this.targetElement]);
 
           if (isValidEntry) {
             this.startindex = this.endindex;
             this.endindex = Math.min(this.endindex + 30, this.mediaurls.length);
-            this.targetElement= Math.min(this.targetElement + 30, this.mediaurls.length);
+            this.targetElement = Math.min(this.targetElement + 30, this.mediaurls.length);
             this.loadmore(this.startindex, this.endindex);
           }
         });
@@ -1365,12 +1365,9 @@ updateButtonVisibility() {
 class ImagePreview {
 	constructor() {
 		// initalize preview variable
-	  this.currentPreview = null;
+	this.currentPreview = null;
     this.windowDimensions = this.getWindowDimensions()
-    this.debouncedUpdatePreviewPosition = this.debounce((e) => {
-      this.updatePreviewPosition(e, this.currentPreview);
-    }, 5);
-	}
+    
   // get clients screen dimensions for sizing logic later
 	getWindowDimensions() {
 	  return {
@@ -1384,16 +1381,6 @@ class ImagePreview {
 		  document.body.clientHeight,
 	  };
 	}
-
-  debounce(func, delay){
-     let timer;
-      return function (...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => func.apply(this, args), delay);
-      };
-  }
-
-
 
     updatePreviewPosition(e, preview) {
       
@@ -1495,8 +1482,8 @@ class ImagePreview {
 	  if (this.currentPreview && hoverType === 'followcursor') {
 		this.currentPreview.remove();
 		this.currentPreview = null;
-     removeListeners(image, 'mouseenter click mouseleave', setupImageAndVideoPreview)
-    removeListeners(document, 'mousemove', this.handleMouseEnter)
+	removeListeners(image, 'mouseenter click mouseleave', setupImageAndVideoPreview)
+	removeListeners(document, 'mousemove', this.handleMouseEnter)
 	  }
 
     if(defaultHoverPreview){
@@ -1523,24 +1510,24 @@ function removeListeners(el, events, handler){
    function setupImageAndVideoPreview() {
     	
       const checkbox = document.getElementById('hover-image')
-        if (!checkbox.checked) return;
-      const fileThumbImages = document.querySelectorAll(".fileThumb img");
-    const imageHoverType = document.getElementById('imageHoverType').value
-    if(imageHoverType ==='followcursor' ){
-      
+	//stop from executing if they dont have hover checked
+      if (!checkbox.checked) return;
 	// Get all images within elements having class "fileThumb"
-	
+      const fileThumbImages = document.querySelectorAll(".fileThumb img");
+	//check if hovertype is followcursor or default 4chan
+      const imageHoverType = document.getElementById('imageHoverType').value
+    if(imageHoverType ==='followcursor'){
 	// Handle mouse enter event for image elements
 	fileThumbImages.forEach(function(image) {
 		 // Declare a variable to store the checkbox state
 		
 	
-		
+	
 	  image.addEventListener('mouseenter', function() {
 		
 
-		// If the image doesn't have the class 'imgexpanded', trigger mouse enter behavior
-		if (!image.classList.contains('imgexpanded') && !image.classList.contains('expanded-thumb') || threadManipulation.grid) {
+		// If the image doesn't have the class 'expanded-thumb' and we arent in grid, trigger mouse enter behavior
+		if (!image.classList.contains('expanded-thumb') && !threadManipulation.grid) {
 														
 		  imagePreview.handleMouseEnter(image);
 		 
@@ -1571,15 +1558,14 @@ function removeListeners(el, events, handler){
 		
 
 		// If the image doesn't have the class 'imgexpanded', trigger mouse enter behavior
-		if (!image.classList.contains('imgexpanded') && !image.classList.contains('expanded-thumb') || threadManipulation.grid) {
+		if (!image.classList.contains('expanded-thumb') && !threadManipulation.grid) {
 			console.log(image.parentNode)
-        ImageHover.show(image)
+        	ImageHover.show(image)
 		}
   
 		// Attach a click event to the image that triggers the mouse leave behavior
 		image.addEventListener('click', function() {
 			imagePreview.handleMouseLeave()
-		  
 		});
 	  });
   
@@ -1608,18 +1594,19 @@ function removeListeners(el, events, handler){
 			anchorElements.forEach(function (anchorElement) {
 				anchorElement.removeAttribute('target');
 			});
-	
+		//expanding and collapsing logic for images
 			fileThumb.addEventListener('click', function (event) {
 				event.preventDefault();
 				if ( fileThumb.querySelector('.expanded-thumb')) {
-          ImageExpansion.toggle(fileThumb.querySelector('.expanded-thumb'))
-					}else{
-            var img = fileThumb.getElementsByTagName('img')[0]
-					ImageExpansion.toggle(img)
+          		ImageExpansion.toggle(fileThumb.querySelector('.expanded-thumb'))
+					
+			}else{
+            		var img = fileThumb.getElementsByTagName('img')[0]
+					I	mageExpansion.toggle(img)
 
           }
-
-        if(fileThumb.querySelector('.expandedWebm')){
+	//collapsing logic for videos (has to be seperate as its a different method to collapse than images)
+        	if(fileThumb.querySelector('.expandedWebm')){
 						fileThumb.parentNode.querySelector('.collapseWebm').querySelector('a').click()
 					}
 				
@@ -1700,8 +1687,8 @@ const styleElement = document.createElement('style');
 styleElement.appendChild(document.createTextNode(webkitScrollbarStyles));
 
 
-	// Append the media container to the document body
-	document.body.append(mediaContainer);
+// Append the media container to the document body
+document.body.append(mediaContainer);
 	
 
 	// setup a click listener to the replace link to prevent page navigation and call the replacethread function
@@ -1709,7 +1696,7 @@ styleElement.appendChild(document.createTextNode(webkitScrollbarStyles));
 replaceLink.addEventListener('click', function (event) {
 	event.preventDefault(); // Prevent the link from navigating
 	threadManipulation.replaceThreadContent();
-  applysmoothscrollwhengrid()
+  	applysmoothscrollwhengrid()
   });
   
 settings.addEventListener('click', function (event){
